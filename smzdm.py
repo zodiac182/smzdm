@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
 import urllib2
@@ -14,17 +14,18 @@ logging.basicConfig(level=logging.DEBUG)
 reload(sys)
 sys.setdefaultencoding("utf8")
 
-success = 1
-fail = 0
+true = 1
+false = 0
 
 class SMZDM(object):
  
-	def __init__(self,name,password):
-		self.name = name
-		self.password = password
-		self.cj = cookielib.LWPCookieJar()
-		self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
-		urllib2.install_opener(self.opener)
+	def __init__(self,name,password,is_sigin):
+		self.name = name;
+		self.password = password;
+		self.is_signin = is_sigin;
+		self.cj = cookielib.LWPCookieJar();
+		self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj));
+		urllib2.install_opener(self.opener);
 	 
 	def _getHeaders(self):
 		headers = {
@@ -60,14 +61,16 @@ class SMZDM(object):
 
 		content = zlib.decompress(content, 16+zlib.MAX_WBITS)  # decompress since 'Accept-Encoding':'gzip, deflate, br' in headers
 
-		if(content.find("\"error_code\":0") >= 0):
-			print str(time.localtime(time.time()).tm_hour)+':'+str(time.localtime(time.time()).tm_min)+' '+self.name+u'登陆成功.\n'
-			return success
-		else:
-			print str(time.localtime(time.time()).tm_hour)+':'+str(time.localtime(time.time()).tm_min)+' '+self.name+u'登录失败.\n',content
-			return fail
+		params = json.loads(content);
 
-		return fail
+		if(params['error_code'] == 0):
+			print str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) ) +' '+self.name+u'登陆成功.\n'
+			return true
+		else:
+			print str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+' '+self.name+u'登录失败.' + params['error_msg'];
+			return false
+
+		return false
 			 
 	def sign(self):
 		headers = {
@@ -80,26 +83,35 @@ class SMZDM(object):
 		try:
 			response = urllib2.urlopen(req)
 			content = response.read()
-			if(content.find("\"error_code\":0") >= 0):
-				print str(time.localtime(time.time()).tm_hour)+':'+str(time.localtime(time.time()).tm_min)+' '+self.name+u'签到成功.\n'
+			params = json.loads(content)
+			if(params['error_code'] == 0):
+				print str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+' '+self.name+u'签到成功.\n'
+				return true;
 			else:
-				print str(time.localtime(time.time()).tm_hour)+':'+str(time.localtime(time.time()).tm_min)+' '+self.name+u'签到失败.',content
+				print str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) ) +' '+self.name+u'签到失败.' + params['error_msg'];
+				return false;
 		except Exception as e:
-			print str(time.localtime(time.time()).tm_hour)+':'+str(time.localtime(time.time()).tm_min)+' '+self.name+u'异常！签到失败: ',e
+			print str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+' '+self.name+u'异常！签到失败: ',e
+			return false;
 
 
 	 
 if __name__ == '__main__':
+	userlogin = [SMZDM('usr1','pwd1',false),SMZDM('usr2','pwd2',false)];
 	while(True):
 		current_time = time.localtime(time.time())
-		if(current_time.tm_hour == 6):
-			userlogin = [SMZDM('usr1','pwd1'),SMZDM('usr2','pwd2')]
+		if(current_time.tm_hour == 0):
+			print(str( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+u' 新的一天开始了.\n');
 			for usr in userlogin:
-				loginurl = usr.login()
-				if(loginurl == success):
-					usr.sign()
+				usr.is_signin = false;
 		
+		for usr in userlogin:
+			if(usr.is_signin == false):
+				if(usr.login() == true):
+					if(usr.sign() == true):
+						usr.is_signin = true;
+				
+						
+#		print(str( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+u' 休眠1小时');
 		
-		print(str( time.strftime('%Y-%m-%d %H:%M:%S',current_time) )+u' 休眠1小时')
-		
-		time.sleep(3600)
+		time.sleep(10);
