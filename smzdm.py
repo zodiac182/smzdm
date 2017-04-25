@@ -114,4 +114,4 @@ if __name__ == '__main__':
 						
 #		print(str( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+u' 休眠1小时');
 		
-		time.sleep(10);
+		time.sleep(3600);
