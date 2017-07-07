@@ -100,7 +100,7 @@ if __name__ == '__main__':
 	userlogin = [SMZDM('usr1','pwd1',false),SMZDM('usr2','pwd2',false)];
 	while(True):
 		current_time = time.localtime(time.time())
-		if(current_time.tm_hour == 9):
+		if(current_time.tm_hour == 0):
 			print(str( time.strftime('%Y-%m-%d %H:%M:%S',current_time) )+u' 新的一天开始了.\n');
 			
 		for usr in userlogin:
