@@ -100,18 +100,21 @@ if __name__ == '__main__':
 	userlogin = [SMZDM('usr1','pwd1',false),SMZDM('usr2','pwd2',false)];
 	while(True):
 		current_time = time.localtime(time.time())
-		if(current_time.tm_hour == 0):
-			print(str( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+u' 新的一天开始了.\n');
-			for usr in userlogin:
+		if(current_time.tm_hour == 9):
+			print(str( time.strftime('%Y-%m-%d %H:%M:%S',current_time) )+u' 新的一天开始了.\n');
+			
+		for usr in userlogin:
+			if(time.strftime('%Y-%m-%d',current_time) == last_signin_date):
+				usr.is_signin = true;
+			else:
 				usr.is_signin = false;
 		
-		for usr in userlogin:
 			if(usr.is_signin == false):
 				if(usr.login() == true):
 					if(usr.sign() == true):
 						usr.is_signin = true;
 				
-						
+		last_signin_date = time.strftime('%Y-%m-%d',current_time);				
 #		print(str( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+u' 休眠1小时');
 		
 		time.sleep(3600);
