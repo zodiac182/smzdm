@@ -98,6 +98,11 @@ class SMZDM(object):
 	 
 if __name__ == '__main__':
 	userlogin = [SMZDM('usr1','pwd1',false),SMZDM('usr2','pwd2',false)];
+	'''输入密码'''
+	for usr in userlogin:
+		tmp_pwd = raw_input('请输入用户'.decode('utf-8').encode('gbk')+usr.name+'的密码:'.decode('utf-8').encode('gbk'))
+		usr.password=tmp_pwd
+		
 	while(True):
 		current_time = time.localtime(time.time())
 		if(current_time.tm_hour == 0):
