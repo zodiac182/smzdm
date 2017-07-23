@@ -9,6 +9,7 @@ import json
 import logging
 import zlib
 import time
+import getpass
 
 logging.basicConfig(level=logging.DEBUG)
 reload(sys)
@@ -100,7 +101,7 @@ if __name__ == '__main__':
 	userlogin = [SMZDM('usr1','pwd1',false),SMZDM('usr2','pwd2',false)];
 	'''输入密码'''
 	for usr in userlogin:
-		tmp_pwd = raw_input('请输入用户'.decode('utf-8').encode('gbk')+usr.name+'的密码:'.decode('utf-8').encode('gbk'))
+		tmp_pwd = getpass.getpass('Input the password for ' + usr.name + ':')
 		usr.password=tmp_pwd
 		
 	while(True):
