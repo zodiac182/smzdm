@@ -11,7 +11,7 @@ import zlib
 import time
 import getpass
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 reload(sys)
 sys.setdefaultencoding("utf8")
 
@@ -20,13 +20,11 @@ false = 0
 
 class SMZDM(object):
  
-	def __init__(self,name,password,is_sigin):
+	def __init__(self,name,is_sigin):
 		self.name = name;
-		self.password = password;
+		self.password = '';
 		self.is_signin = is_sigin;
-		self.cj = cookielib.LWPCookieJar();
-		self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj));
-		urllib2.install_opener(self.opener);
+		self.sessionObj = requests.Session()
 	 
 	def _getHeaders(self):
 		headers = {
@@ -51,24 +49,22 @@ class SMZDM(object):
 	 
 	def login(self):
 		'''登录网站'''
- #	   logging.debug(u'正在登陆 username : %s password : %s' %(self.name,self.password))
- #	   logging.debug(u'\nheaders is : %s' % self._getHeaders())
+		logging.debug(u'正在登陆 username : %s password : %s' %(self.name,self.password))
+		logging.debug(u'\nheaders is : %s' % self._getHeaders())
 		loginparams = {'username': self.name,'password':self.password,'remember':'0','captcha':'0'}
- #	   logging.debug(u'\nloginparams is : %s' % loginparams)
-		req = urllib2.Request( r'https://zhiyou.smzdm.com/user/login/ajax_check', urllib.urlencode(loginparams), headers=self._getHeaders())
-		response = urllib2.urlopen(req)
+		logging.debug(u'\nloginparams is : %s' % loginparams)
+		req = self.sessionObj.post(r'https://zhiyou.smzdm.com/user/login/ajax_check', data=loginparams,headers=self._getHeaders())
 
-		content = response.read()
 
-		content = zlib.decompress(content, 16+zlib.MAX_WBITS)  # decompress since 'Accept-Encoding':'gzip, deflate, br' in headers
+		print req.text
 
-		params = json.loads(content);
+		params = eval(req.text)
 
 		if(params['error_code'] == 0):
 			print str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) ) +' '+self.name+u'登陆成功.\n'
 			return true
 		else:
-			print str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+' '+self.name+u'登录失败.' + params['error_msg'];
+			print str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+' '+self.name+u'登录失败.' + params['error_msg'].decode('unicode_escape')
 			return false
 
 		return false
@@ -79,31 +75,27 @@ class SMZDM(object):
 			'Host': 'zhiyou.smzdm.com',
 			'Referer': 'http://www.smzdm.com/'
 		}
-#		logging.debug( 'start sign\n')
-		req = urllib2.Request(r'http://www.smzdm.com/user/checkin/jsonp_checkin', headers=headers)
+		req = self.sessionObj.get(r'http://www.smzdm.com/user/checkin/jsonp_checkin', headers=headers)
 		try:
-			response = urllib2.urlopen(req)
-			content = response.read()
-			params = json.loads(content)
+			params = eval(req.text)
 			if(params['error_code'] == 0):
 				print str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+' '+self.name+u'签到成功.\n'
 				return true;
 			else:
-				print str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) ) +' '+self.name+u'签到失败.' + params['error_msg'];
+				print str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) ) +' '+self.name+u'签到失败.' + params['error_msg'].decode('unicode_escape')
 				return false;
 		except Exception as e:
 			print str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+' '+self.name+u'异常！签到失败: ',e
 			return false;
 
-
-	 
 if __name__ == '__main__':
-	userlogin = [SMZDM('usr1','pwd1',false),SMZDM('usr2','pwd2',false)];
+	last_signin_date = '0000-00-00'
+	userlogin = [SMZDM('uname',false)]
+	
 	'''输入密码'''
 	for usr in userlogin:
-		tmp_pwd = getpass.getpass('Input the password for ' + usr.name + ':')
-		usr.password=tmp_pwd
-		
+		tmp_pwd = getpass.getpass('Input the password for %s:' %(usr.name) )
+		usr.password = tmp_pwd
 	while(True):
 		current_time = time.localtime(time.time())
 		if(current_time.tm_hour == 0):
@@ -121,6 +113,5 @@ if __name__ == '__main__':
 						usr.is_signin = true;
 				
 		last_signin_date = time.strftime('%Y-%m-%d',current_time);				
-#		print(str( time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+u' 休眠1小时');
 		
 		time.sleep(3600);
