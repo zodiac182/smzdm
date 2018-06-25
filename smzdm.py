@@ -12,10 +12,10 @@ import time
 import getpass
 
 logging.basicConfig(level=logging.INFO,
-                                format='%(asctime)s %(levelname)s %(message)s',
-                datefmt='%a, %d %b %Y %H:%M:%S',
-                filename='smzdm.log',
-                filemode='w+')
+                    format='%(asctime)s %(levelname)s %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filename='smzdm.log',
+                    filemode='w+')
 reload(sys)
 sys.setdefaultencoding("utf8")
 
@@ -65,8 +65,7 @@ class SMZDM(object):
                         logging.info(self.name+u'登陆成功.\n')
                         return true
                 else:
-                        logging.warning(str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+' '+self.name+u'登录失败.' + params['error_msg'].decode('unicode_escape'))
-"smzdm.py" 115L, 3663C                                                                                                                                                                    1,1          顶端
+                        logging.warning(str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+' '+self.name+u'登录失败.' + params['error_msg'].decode('unicode_escape'))                                                                                                                                                                  1,1          顶端
                 else:
                         logging.warning(str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+' '+self.name+u'登录失败.' + params['error_msg'].decode('unicode_escape'))
                         return false
