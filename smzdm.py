@@ -63,7 +63,7 @@ class SMZDM(object):
 
                 if(params['error_code'] == 0):
                         logging.info(self.name+u'登陆成功.\n')
-                        return true                                                                                                                                                                            1,1          顶端
+                        return true
                 else:
                         logging.warning(str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time() )) )+' '+self.name+u'登录失败.' + params['error_msg'].decode('unicode_escape'))
                         return false
